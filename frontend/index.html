@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" ng-app="todoApp">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todo Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body ng-controller="TodoController as vm">
+    <main class="app-shell">
+      <section class="auth-panel" ng-if="!vm.currentUser">
+        <div>
+          <p class="eyebrow">Task manager</p>
+          <h1>Todo Login</h1>
+          <p class="muted">Create an account or log in to see your personal dashboard.</p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Authentication mode">
+          <button type="button" ng-class="{active: vm.mode === 'login'}" ng-click="vm.mode = 'login'">
+            Login
+          </button>
+          <button type="button" ng-class="{active: vm.mode === 'register'}" ng-click="vm.mode = 'register'">
+            Register
+          </button>
+        </div>
+
+        <form ng-submit="vm.submitAuth()" novalidate>
+          <label ng-if="vm.mode === 'register'">
+            Name
+            <input type="text" ng-model="vm.auth.name" placeholder="Jane Developer">
+          </label>
+
+          <label>
+            Email
+            <input type="email" ng-model="vm.auth.email" placeholder="jane@example.com" required>
+          </label>
+
+          <label>
+            Password
+            <input type="password" ng-model="vm.auth.password" placeholder="At least 6 characters" required>
+          </label>
+
+          <button class="primary-action" type="submit">
+            {{ vm.mode === 'login' ? 'Log in' : 'Create account' }}
+          </button>
+        </form>
+
+        <p class="message error" ng-if="vm.error">{{ vm.error }}</p>
+        <p class="message success" ng-if="vm.notice">{{ vm.notice }}</p>
+      </section>
+
+      <section class="dashboard" ng-if="vm.currentUser">
+        <header class="dashboard-header">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1>Hello, {{ vm.currentUser.name }}</h1>
+            <p class="muted">{{ vm.pendingCount() }} pending task{{ vm.pendingCount() === 1 ? '' : 's' }}</p>
+          </div>
+          <button class="secondary-action" type="button" ng-click="vm.logout()">Log out</button>
+        </header>
+
+        <form class="task-form" ng-submit="vm.createTask()" novalidate>
+          <label>
+            New task
+            <input type="text" ng-model="vm.newTaskTitle" placeholder="Write Flask route notes">
+          </label>
+          <button class="primary-action" type="submit">Add</button>
+        </form>
+
+        <p class="message error" ng-if="vm.error">{{ vm.error }}</p>
+        <p class="message success" ng-if="vm.notice">{{ vm.notice }}</p>
+
+        <ul class="task-list" ng-if="vm.tasks.length">
+          <li ng-repeat="task in vm.tasks track by task.id" ng-class="{done: task.completed}">
+            <label class="task-check">
+              <input type="checkbox" ng-model="task.completed" ng-change="vm.updateTask(task)">
+              <span>{{ task.title }}</span>
+            </label>
+            <button type="button" class="delete-action" ng-click="vm.deleteTask(task)">Delete</button>
+          </li>
+        </ul>
+
+        <div class="empty-state" ng-if="!vm.tasks.length">
+          <h2>No tasks yet</h2>
+          <p class="muted">Add your first task from the form above.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
